@@ -22,11 +22,11 @@ type command string
 
 // API commands as per the spec
 const (
-	domain_Zone_GetAll        command = "Domain_Zone_GetAll"
-	domain_Zone_AddTypeA      command = "Domain_Zone_AddTypeA"
-	domain_Zone_DeleteTypeA   command = "Domain_Zone_DeleteTypeA"
-	domain_Zone_AddTypeTXT    command = "Domain_Zone_AddTypeTXT"
-	domain_Zone_DeleteTypeTXT command = "Domain_Zone_DeleteTypeTXT"
+	domainZoneGetAll        command = "Domain_Zone_GetAll"
+	domainZoneAddTypeA      command = "Domain_Zone_AddTypeA"
+	domainZoneDeleteTypeA   command = "Domain_Zone_DeleteTypeA"
+	domainZoneAddTypeTXT    command = "Domain_Zone_AddTypeTXT"
+	domainZoneDeleteTypeTXT command = "Domain_Zone_DeleteTypeTXT"
 )
 
 // Provider facilitates DNS record manipulation with Dinahosting.
@@ -58,7 +58,7 @@ type dinaResponse struct {
 // Full endpoint: https://dinahosting.com/special/api.php?AUTH_USER=user&AUTH_PWD=pass&domain=example.com&responseType=json&command=Domain_Zone_GetAll
 func (p *Provider) GetRecords(ctx context.Context, zone string) ([]libdns.Record, error) {
 
-	endpoint, err := p.buildQuery(zone, domain_Zone_GetAll)
+	endpoint, err := p.buildQuery(zone, domainZoneGetAll)
 	if err != nil {
 		return nil, err
 	}
@@ -133,12 +133,12 @@ func (p *Provider) AppendRecords(ctx context.Context, zone string, records []lib
 		var err error
 		// TXT record
 		if record.Type == "TXT" {
-			endpoint, err = p.buildQueryWithRecord(zone, domain_Zone_AddTypeTXT, record)
+			endpoint, err = p.buildQueryWithRecord(zone, domainZoneAddTypeTXT, record)
 			if err != nil {
 				return nil, err
 			}
 		} else if record.Type == "A" {
-			endpoint, err = p.buildQueryWithRecord(zone, domain_Zone_AddTypeA, record)
+			endpoint, err = p.buildQueryWithRecord(zone, domainZoneAddTypeA, record)
 			if err != nil {
 				return nil, err
 			}
@@ -241,13 +241,13 @@ func (p *Provider) DeleteRecords(ctx context.Context, zone string, records []lib
 		var err error
 		// Delete TXT record
 		if record.Type == "TXT" {
-			endpoint, err = p.buildQueryWithRecord(zone, domain_Zone_DeleteTypeTXT, record)
+			endpoint, err = p.buildQueryWithRecord(zone, domainZoneDeleteTypeTXT, record)
 			if err != nil {
 				return nil, err
 			}
 			// Delete A record
 		} else if record.Type == "A" {
-			endpoint, err = p.buildQueryWithRecord(zone, domain_Zone_DeleteTypeA, record)
+			endpoint, err = p.buildQueryWithRecord(zone, domainZoneDeleteTypeA, record)
 			if err != nil {
 				return nil, err
 			}
@@ -292,7 +292,7 @@ func (p *Provider) buildQuery(zone string, command command) (*url.URL, error) {
 	params.Add("domain", strings.TrimSuffix(zone, "."))
 	params.Add("responseType", "json")
 
-	if command == domain_Zone_GetAll {
+	if command == domainZoneGetAll {
 		params.Add("command", "Domain_Zone_GetAll")
 	}
 
@@ -306,19 +306,19 @@ func (p *Provider) buildQueryWithRecord(zone string, command command, record lib
 		return nil, err
 	}
 	params := endpoint.Query()
-	if command == domain_Zone_AddTypeTXT {
-		params.Add("command", string(domain_Zone_AddTypeTXT))
+	if command == domainZoneAddTypeTXT {
+		params.Add("command", string(domainZoneAddTypeTXT))
 		params.Add("hostname", record.Name)
 		params.Add("text", record.Value)
-	} else if command == domain_Zone_AddTypeA {
+	} else if command == domainZoneAddTypeA {
 		params.Add("command", "Domain_Zone_AddTypeA")
 		params.Add("hostname", record.Name)
 		params.Add("ip", record.Value)
-	} else if command == domain_Zone_DeleteTypeTXT {
+	} else if command == domainZoneDeleteTypeTXT {
 		params.Add("command", "Domain_Zone_DeleteTypeTXT")
 		params.Add("hostname", record.Name)
 		params.Add("value", record.Value)
-	} else if command == domain_Zone_DeleteTypeA {
+	} else if command == domainZoneDeleteTypeA {
 		params.Add("command", "Domain_Zone_DeleteTypeA")
 		params.Add("hostname", record.Name)
 		params.Add("ip", record.Value)
