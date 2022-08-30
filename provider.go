@@ -305,24 +305,28 @@ func (p *Provider) buildQueryWithRecord(zone string, command command, record lib
 	if err != nil {
 		return nil, err
 	}
+
 	params := endpoint.Query()
-	if command == domainZoneAddTypeTXT {
+
+	switch command {
+	case domainZoneAddTypeTXT:
 		params.Add("command", string(domainZoneAddTypeTXT))
 		params.Add("hostname", record.Name)
 		params.Add("text", record.Value)
-	} else if command == domainZoneAddTypeA {
+	case domainZoneAddTypeA:
 		params.Add("command", "Domain_Zone_AddTypeA")
 		params.Add("hostname", record.Name)
 		params.Add("ip", record.Value)
-	} else if command == domainZoneDeleteTypeTXT {
+	case domainZoneDeleteTypeTXT:
 		params.Add("command", "Domain_Zone_DeleteTypeTXT")
 		params.Add("hostname", record.Name)
 		params.Add("value", record.Value)
-	} else if command == domainZoneDeleteTypeA {
+	case domainZoneDeleteTypeA:
 		params.Add("command", "Domain_Zone_DeleteTypeA")
 		params.Add("hostname", record.Name)
 		params.Add("ip", record.Value)
 	}
+
 	endpoint.RawQuery = params.Encode()
 	return endpoint, nil
 }
